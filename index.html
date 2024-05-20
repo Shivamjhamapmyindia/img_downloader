@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to JSON Converter</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".csv">
+    <button onclick="convertAndWrite()">Convert and Write to File</button>
+
+    <script>
+        function convertAndWrite() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const csv = event.target.result;
+                const lines = csv.split('\n');
+                const headers = lines[0].split(',');
+                const jsonData = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    const data = lines[i].split(',');
+                    const obj = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = data[j];
+                    }
+                    jsonData.push(obj);
+                }
+
+                const jsonString = JSON.stringify(jsonData, null, 2);
+                
+                // Write JSON data to text file
+                writeToFile(jsonString);
+            };
+
+            reader.readAsText(file);
+        }
+
+        function writeToFile(jsonString) {
+            const blob = new Blob([jsonString], { type: 'text/plain' });
+            const fileName = 'output.json';
+            const a = document.createElement('a');
+            a.download = fileName;
+            a.href = window.URL.createObjectURL(blob);
+            a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
